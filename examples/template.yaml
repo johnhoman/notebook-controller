@@ -1,0 +1,81 @@
+apiVersion: jackhoman.dev/v1beta1
+kind: Template
+metadata:
+  name: example
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: main
+        image: public.ecr.aws/j1r0q0g6/notebooks/notebook-servers/jupyter-scipy:v1.5.0
+        ports:
+        - containerPort: 8888
+  required:
+  - name: example
+---
+apiVersion: jackhoman.dev/v1beta1
+kind: PodDefault
+metadata:
+  name: example
+  namespace: default
+spec:
+  template:
+    spec:
+      containers:
+      - name: main
+        env:
+          - name: PIP_INDEX_URL
+            value: https://pypi.org/simple
+---
+apiVersion: jackhoman.dev/v1beta1
+kind: Notebook
+metadata:
+  name: example
+  namespace: default
+spec:
+  updatePolicy: Auto
+  revisionHistoryLimit: 3
+  stopped: true
+  owner:
+    kind: User
+    name: homan.jack@gmail.com
+  templateRef:
+    name: example
+    namespace: default
+---
+apiVersion: jackhoman.dev/v1beta1
+kind: Dag
+metadata:
+  name: example
+  namespace: default
+spec:
+  entrypoint: hello-world
+  tasks:
+  - name: hello-world
+    templateRef:
+      name: example
+      namespace: default
+    command: ["echo", "hello, world"]
+    dependencies:
+    - hello-jack
+    - hello-jack-again
+  - name: hello-jack
+    templateRef:
+      name: example
+      namespace: default
+    command: ["echo", "hello, jack"]
+  - name: hello-jack-again
+    templateRef:
+      name: example
+      namespace: default
+    command: ["echo", "hello again, jack"]
+---
+apiVersion: jackhoman.dev/v1beta1
+kind: Execution
+metadata:
+  name: example-0
+  namespace: default
+spec:
+  dagRef:
+     name: example

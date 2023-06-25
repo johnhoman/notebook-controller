@@ -1,0 +1,127 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.12.0
+  name: executions.jackhoman.dev
+spec:
+  group: jackhoman.dev
+  names:
+    kind: Execution
+    listKind: ExecutionList
+    plural: executions
+    singular: execution
+  scope: Namespaced
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: An Execution is a job that runs a Dag.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: Spec is the specification of the Execution.
+            properties:
+              dagRef:
+                description: DagRef is the name of the Dag to execute.
+                properties:
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    type: string
+                type: object
+                x-kubernetes-map-type: atomic
+              parallelism:
+                default: 10
+                description: Parallelism is the number of jobs to run in parallel.
+                maximum: 20
+                minimum: 0
+                type: integer
+            required:
+            - dagRef
+            type: object
+          status:
+            description: Status is the current status of the Execution. That execution
+              status will be updated as tasks are complete.
+            properties:
+              completed:
+                description: Completed is true when all tasks have completed.
+                type: boolean
+              succeeded:
+                description: Succeeded is true when all tasks have completed successfully.
+                type: boolean
+              tasks:
+                additionalProperties:
+                  properties:
+                    completed:
+                      description: Completed when all tasks have completed or a single
+                        task fails.
+                      type: boolean
+                    conditions:
+                      description: Phase is the current phase of the task.
+                      items:
+                        description: JobCondition describes current state of a job.
+                        properties:
+                          lastProbeTime:
+                            description: Last time the condition was checked.
+                            format: date-time
+                            type: string
+                          lastTransitionTime:
+                            description: Last time the condition transit from one
+                              status to another.
+                            format: date-time
+                            type: string
+                          message:
+                            description: Human readable message indicating details
+                              about last transition.
+                            type: string
+                          reason:
+                            description: (brief) reason for the condition's last transition.
+                            type: string
+                          status:
+                            description: Status of the condition, one of True, False,
+                              Unknown.
+                            type: string
+                          type:
+                            description: Type of job condition, Complete or Failed.
+                            type: string
+                        required:
+                        - status
+                        - type
+                        type: object
+                      type: array
+                    succeeded:
+                      description: Succeeded is true when all tasks have completed
+                        successfully.
+                      type: boolean
+                  required:
+                  - completed
+                  - succeeded
+                  type: object
+                description: Tasks is a map of task names to their current status.
+                type: object
+            required:
+            - completed
+            - succeeded
+            - tasks
+            type: object
+        required:
+        - metadata
+        - spec
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

@@ -1,0 +1,115 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.12.0
+  name: dags.jackhoman.dev
+spec:
+  group: jackhoman.dev
+  names:
+    kind: Dag
+    listKind: DagList
+    plural: dags
+    singular: dag
+  scope: Namespaced
+  versions:
+  - name: v1beta1
+    schema:
+      openAPIV3Schema:
+        description: A Dag is a spec for a directed acyclic graph.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            properties:
+              entrypoint:
+                description: The Entrypoint is the first task in the DAG
+                type: string
+              tasks:
+                description: Tasks are the tasks in the DAG
+                items:
+                  properties:
+                    command:
+                      description: Command is the command to run in the DagTask's
+                        job. If Command is omitted, the command from the Template
+                        will be used.
+                      items:
+                        type: string
+                      type: array
+                    dependencies:
+                      description: Dependencies are the names of other tasks that
+                        must complete before this task can start.
+                      items:
+                        type: string
+                      type: array
+                    name:
+                      description: Name is the name of the task. The name is required
+                        to create dependencies
+                      type: string
+                    options:
+                      description: Options are the names of PodDefaults that should
+                        be merged into the task's pod template. The PodDefaults must
+                        be options in the template to be used.
+                      items:
+                        description: LocalObjectReference contains enough information
+                          to let you locate the referenced object inside the same
+                          namespace.
+                        properties:
+                          name:
+                            description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                              TODO: Add other useful fields. apiVersion, kind, uid?'
+                            type: string
+                        type: object
+                        x-kubernetes-map-type: atomic
+                      type: array
+                    resources:
+                      additionalProperties:
+                        anyOf:
+                        - type: integer
+                        - type: string
+                        pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                        x-kubernetes-int-or-string: true
+                      description: Resources are resources requested for the task,
+                        such as memory, and cpu. If Resources is omitted, the defaults
+                        from the Template will be used
+                      type: object
+                    templateRef:
+                      description: Template is the name of the template to use for
+                        the DagTask's job.
+                      properties:
+                        name:
+                          type: string
+                        namespace:
+                          type: string
+                        resourceVersion:
+                          type: string
+                      required:
+                      - name
+                      - namespace
+                      type: object
+                  required:
+                  - name
+                  - templateRef
+                  type: object
+                type: array
+            required:
+            - entrypoint
+            - tasks
+            type: object
+        required:
+        - metadata
+        - spec
+        type: object
+    served: true
+    storage: true

@@ -1,12 +1,12 @@
-package main
+package web
 
 import (
 	"context"
-	"go.uber.org/zap"
-	"k8s.io/apimachinery/pkg/api/errors"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
+	"k8s.io/apimachinery/pkg/api/errors"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/johnhoman/notebook-controller/apis/v1beta1"

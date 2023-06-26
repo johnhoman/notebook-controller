@@ -8,11 +8,9 @@ it.
 * Notebooks are created from a list of templates and configurations meant to work with those templates.
 * Single ownership of resources (e.g. a user owns a notebook, not a profile)
 * Dynamic RBAC rules based on notebook ownership (e.g. only the user that created the notebook can patch, update, or delete it)
-* Only modify fields that the controller cares about -- this allows thinks mutating webhooks to modify resources
+* Only modify fields that the controller cares about -- this allows things like mutating webhooks to modify resources
   maintained by the controller. If a user wants to add a header to a VirtualService by mutating webhook, they
   should be able to.
-* Allow additional ports to be opened -- this could be done by webhook _if_ the controller didn't rewrite the whole
-  spec during reconciliation.
 
 ## API
 
